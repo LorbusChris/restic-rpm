@@ -1,3 +1,6 @@
+# Disable debug rpm on EPEL/CentOS Stream
+%global debug_package %{nil}
+
 # https://github.com/restic/restic
 %global goipath         github.com/restic/restic
 Version:                0.12.1
@@ -32,42 +35,8 @@ Source0: %{gosource}
 #Restic does not compile for the following archs
 ExcludeArch: s390x
 
-BuildRequires: golang(bazil.org/fuse)
-BuildRequires: golang(bazil.org/fuse/fs)
-BuildRequires: golang(github.com/Azure/azure-sdk-for-go/storage)
-BuildRequires: golang(github.com/cenkalti/backoff)
-BuildRequires: golang(github.com/elithrar/simple-scrypt)
-BuildRequires: golang(github.com/juju/ratelimit)
-BuildRequires: golang(github.com/kurin/blazer/b2)
-BuildRequires: golang(github.com/mattn/go-isatty)
-BuildRequires: golang(github.com/ncw/swift)
-BuildRequires: golang(github.com/pkg/errors)
-BuildRequires: golang(github.com/pkg/sftp)
-BuildRequires: golang(github.com/pkg/xattr)
-BuildRequires: golang(github.com/restic/chunker)
-BuildRequires: golang(github.com/hashicorp/golang-lru/simplelru)
-BuildRequires: golang(golang.org/x/crypto/poly1305)
-BuildRequires: golang(golang.org/x/crypto/scrypt)
-BuildRequires: golang(golang.org/x/crypto/ssh/terminal)
-BuildRequires: golang(golang.org/x/net/context)
-BuildRequires: golang(golang.org/x/net/context/ctxhttp)
-BuildRequires: golang(golang.org/x/net/http2)
-BuildRequires: golang(golang.org/x/oauth2/google)
-BuildRequires: golang(golang.org/x/sync/errgroup)
-BuildRequires: golang(golang.org/x/sys/unix)
-BuildRequires: golang(golang.org/x/text/encoding/unicode)
-BuildRequires: golang(google.golang.org/api/googleapi)
-BuildRequires: golang(google.golang.org/api/storage/v1)
-BuildRequires: golang(gopkg.in/tomb.v2)
-#Updated for 0.12.0
-BuildRequires: golang(github.com/minio/minio-go/v7)
-BuildRequires: golang(github.com/minio/minio-go/v7/pkg/credentials)
-BuildRequires: golang(cloud.google.com/go/storage)
-#Added for 0.10.0
-BuildRequires: golang(github.com/cespare/xxhash)
-BuildRequires: golang(github.com/dchest/siphash)
-#for check/testing
-BuildRequires: golang(github.com/google/go-cmp/cmp)
+BuildRequires: git
+BuildRequires: golang
 #Soft dependency for mounting , ie: fusemount
 #Requires: fuse
 
@@ -78,10 +47,11 @@ BuildRequires: golang(github.com/google/go-cmp/cmp)
 #%%gopkg
 
 %prep
-%goprep
+%autosetup
 
 %build
-%gobuild -o %{gobuilddir}/bin/%{name} %{goipath}/cmd/restic
+go mod vendor
+CGO_ENABLED=0 go build -buildmode pie -compiler gc '-tags=rpm_crashtraceback' -ldflags '-X %{goipath}/version=%{version} -compressdwarf=false -s -w' -o %{gobuilddir}/bin/%{name} %{goipath}/cmd/restic
 
 
 %install
@@ -100,7 +70,6 @@ install -p -m 755 %{gobuilddir}/bin/%{name} %{buildroot}%{_bindir}
 %check
 #Skip tests using fuse due to root requirement
 export RESTIC_TEST_FUSE=0
-%gocheck
 
 
 %files
@@ -117,6 +86,7 @@ export RESTIC_TEST_FUSE=0
 
 %changelog
 * Mon Dec 06 2021 Christian Glombek <lorbus@fedoraproject.org> - 0.12.1-1
+- Remove Go macros and library deps for EPEL/CentOS Stream builds
 - Update to version 0.12.1
 - Remove unused patch files and references
 

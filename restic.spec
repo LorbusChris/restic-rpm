@@ -28,10 +28,6 @@ Summary: Fast, secure, efficient backup program
 URL:     %{gourl}
 License: BSD
 Source0: %{gosource}
-#Patch0: 0001-Fix-running-tests-on-a-SELinux-enabled-system.patch
-#Patch1: backport-2652.patch
-#Move internal/fs.TestChdir to internal/test.Chdir
-#Patch1:  0001-Move-internal-fs.TestChdir-to-internal-test.Chdir.patch
 
 #Restic does not compile for the following archs
 ExcludeArch: s390x
@@ -120,6 +116,9 @@ export RESTIC_TEST_FUSE=0
 
 
 %changelog
+* Mon Dec 06 2021 Christian Glombek <lorbus@fedoraproject.org> - 0.12.0-1
+- Remove unused patch files and references
+
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 0.12.0-1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 

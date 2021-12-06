@@ -1,6 +1,6 @@
 # https://github.com/restic/restic
 %global goipath         github.com/restic/restic
-Version:                0.12.0
+Version:                0.12.1
 
 %gometa
 
@@ -116,7 +116,8 @@ export RESTIC_TEST_FUSE=0
 
 
 %changelog
-* Mon Dec 06 2021 Christian Glombek <lorbus@fedoraproject.org> - 0.12.0-1
+* Mon Dec 06 2021 Christian Glombek <lorbus@fedoraproject.org> - 0.12.1-1
+- Update to version 0.12.1
 - Remove unused patch files and references
 
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 0.12.0-1
